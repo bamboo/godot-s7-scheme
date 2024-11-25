@@ -1,7 +1,0 @@
-clang
-%c -std=c11
-%cpp -std=c++17
--Igodot-cpp/include/
--Igodot-cpp/gdextension/
--Igodot-cpp/gen/include/
--Is7/

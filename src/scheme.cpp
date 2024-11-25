@@ -1,6 +1,7 @@
 #include "scheme.hpp"
 #include "ffi.hpp"
 #include "godot_cpp/variant/utility_functions.hpp"
+#include "scheme_repl_server.hpp"
 
 using namespace godot;
 
@@ -12,6 +13,31 @@ Scheme::Scheme() {
 
 Scheme::~Scheme() { _process_symbol = nullptr; }
 
+void Scheme::_ready() {
+  load_prelude();
+  load_script();
+}
+
+void Scheme::_process(double delta) {
+  if (_process_symbol) {
+    scheme.call(_process_symbol.get(), delta);
+  }
+}
+void Scheme::_enter_tree() {
+  // TODO: move initialization here
+  SchemeReplServer::get_singleton()->publish_node(this);
+  Node::_enter_tree();
+}
+
+void Scheme::_exit_tree() {
+  SchemeReplServer::get_singleton()->unpublish_node(this);
+
+  if (_process_symbol) {
+    auto _ = scheme.call_optional("_exit_tree");
+  }
+  Node::_exit_tree();
+}
+
 void Scheme::define(
     const godot::String &name,
     const godot::Variant &value,
@@ -22,27 +48,26 @@ void Scheme::define(
 void Scheme::set_scheme_script(const Ref<godot::SchemeScript> &p_scheme_script) {
   scheme_script = p_scheme_script;
   if (is_node_ready()) {
-    _ready();
+    load_script();
   }
 }
 
-void Scheme::_ready() {
+void Scheme::load_prelude() {
   for (int i = 0; i < prelude.size(); ++i) {
     auto script = Object::cast_to<SchemeScript>(prelude[i]);
     DEV_ASSERT(script != nullptr);
     load(script);
   }
+}
 
+void Scheme::load_script() {
   if (scheme_script.is_null()) {
     _process_symbol = nullptr;
-    set_process(false);
     return;
   }
 
   load(scheme_script.ptr());
-
   _process_symbol = scheme.make_symbol("_process");
-  set_process(true);
 }
 
 void Scheme::load(const godot::SchemeScript *script) const {
@@ -53,21 +78,13 @@ void Scheme::load_string(const String &code) const {
   scheme.load_string(code);
 }
 
-void Scheme::_process(double delta) {
-  if (_process_symbol) {
-    scheme.call(_process_symbol.get(), delta);
-  }
-}
-
-void Scheme::_exit_tree() {
-  if (_process_symbol) {
-    auto res = scheme.call_optional("_exit_tree");
-  }
-  Node::_exit_tree();
-}
-
 Variant Scheme::eval(const String &code) {
   return scheme_to_variant(scheme.get(), scheme.eval(code));
+}
+
+void Scheme::eval_async(const String &code, const Callable &continuation) {
+  auto result = eval(code);
+  continuation.call_deferred(result);
 }
 
 s7_pointer array_to_list(s7_scheme *sc, const Array &array) {
@@ -117,6 +134,7 @@ void Scheme::_bind_methods() {
       &Scheme::define,
       DEFVAL(""));
   ClassDB::bind_method(D_METHOD("eval", "p_code"), &Scheme::eval);
+  ClassDB::bind_method(D_METHOD("eval_async", "p_code", "p_continuation"), &Scheme::eval_async);
   ClassDB::bind_method(D_METHOD("apply", "p_symbol", "p_args"),
       &Scheme::apply,
       DEFVAL(Array()));

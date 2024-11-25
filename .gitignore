@@ -24,9 +24,14 @@ custom.py
 
 # Ignore generated compile_commands.json
 compile_commands.json
+.ccls
+.ccls-cache/
 
 # Ignore files generated for documentation
 /src/gen
+
+# Ignore files generated for the repl
+/src/repl/gen
 
 # Binaries
 *.o

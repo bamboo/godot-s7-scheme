@@ -20,24 +20,24 @@ A more complete example of the available syntax:
   (define button (*node* 'owner '(get_child 1)))
 
   (define (button-append! suffix)
-	(let ((text (button 'text)))
-	  ;; Godot properties are set via generalized set! syntax
-	  ;; and there are two main ways of calling Godot methods:
-	  ;;  * (! <obj> <method symbol> &<args>)
-	  ;;  * (<obj> '(<method symbol> &<args>))
-	  ;; ! is preferred for effectful calls such as
-	  ;; 'insert below, and, in general is more amenable
-	  ;; to optimisations. Applicable object syntax
-	  ;; is convenient for const methods like '(length) below and
-	  ;; `(get_child 1) above.
-	  (set! (button 'text)
-			(! text 'insert (text '(length)) suffix))))
+    (let ((text (button 'text)))
+      ;; Godot properties are set via generalized set! syntax
+      ;; and there are two main ways of calling Godot methods:
+      ;;  * (! <obj> <method symbol> &<args>)
+      ;;  * (<obj> '(<method symbol> &<args>))
+      ;; ! is preferred for effectful calls such as
+      ;; 'insert below, and, in general is more amenable
+      ;; to optimisations. Applicable object syntax
+      ;; is convenient for const methods like '(length) below and
+      ;; `(get_child 1) above.
+      (set! (button 'text)
+        (! text 'insert (text '(length)) suffix))))
 
   (define (function-handler)
-	(button-append! "!"))
+    (button-append! "!"))
 
   (define (symbol-handler)
-	(button-append! "'"))
+    (button-append! "'"))
 
   ;; Signals can be connected to symbols, lambdas and arbitrary procedures.
   ;; Symbols provide late binding, i.e., the ability to redefine the
@@ -57,19 +57,19 @@ Very experimental but a lot of fun to play with. Use it at your own risk.
 Make sure to update all git submodules:
 
 ```shell
-	git submodule update --init
+    git submodule update --init
 ```
 
-Build and launch the demo project with:
+Build and launch the demo project with `make run` or more explicitly via:
 
 ```shell
-	scons && godot -e --path demo
+    scons && godot -e --path demo
 ```
 
-Build the Android target with:
+Build the Android target with `make android` or more explicitly via:
 
 ```shell
-	scons platform=android target=template_debug
+  scons platform=android target=template_debug
 ```
 
 Make sure `ANDROID_HOME` is set.
@@ -79,22 +79,29 @@ Make sure `ANDROID_HOME` is set.
 Install [Geiser](https://www.nongnu.org/geiser/) then add the following to your Emacs configuration:
 
 ```elisp
-  (add-to-list 'load-path "~/path/to/godot-s7-scheme/emacs/")
-  (load "geiser-godot-s7-autoloads.el")
+(add-to-list 'load-path "~/path/to/godot-s7-scheme/emacs/")
+(load "geiser-godot-s7-autoloads.el")
 ```
 
 The Emacs extension automatically recognize Scheme files inside Godot project directories as `Godot s7 Scheme` files.
 
-### Connecting
+### Connecting to the editor
 
-1. Add a `SchemeReplServer` to your scene (preferably as a child of a `Scheme` node) and set its `Auto Start` property to `true`.
-2. Check the port number in the Godot output window.
-3. `M-x connect-to-godot-s7`
+1. Start Godot with `--s7-tcp-port=<port-number>` (and/or `--s7-tcp-address=<bind-address>`).
+2. Check the port number in the console.
+3. In Emacs, `M-x connect-to-godot-s7`
+3.1 You can also open a Scheme repl from the shell with `nc <bind-address> <port-number>`
+
+### Connecting to a running scene
+
+1. In Godot, select `Debug / Customize Run Instances... / Main Run Args`
+   - Add `--s7-tcp-port=<port-number>` and/or `--s7-tcp-address=<bind-address>`.
+2. Steps 2 and 3 as above.
 
 ## Roadmap
 
 - [x] use Godot API from Scheme
-- [o] live coding interface via Emacs (wip)
+- [x] live coding interface via Emacs
 - [ ] expose tree-sitter API to Scheme
 - [ ] Scheme editor with syntax highlighting
 - [ ] Scheme notebooks
