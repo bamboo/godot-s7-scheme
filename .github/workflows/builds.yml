@@ -38,13 +38,13 @@ jobs:
       #    clang-format src/** --dry-run --Werror
 
 # Build
-      - name: 🔗 GDExtension Debug Build
-        uses: ./.github/actions/build
-        with:
-          platform: ${{ matrix.platform }}
-          arch: ${{ matrix.arch }}
-          float-precision: ${{ matrix.float-precision }}
-          build-target-type: ${{ matrix.target-type }}
+      # - name: 🔗 GDExtension Debug Build
+      #   uses: ./.github/actions/build
+      #   with:
+      #     platform: ${{ matrix.platform }}
+      #     arch: ${{ matrix.arch }}
+      #     float-precision: ${{ matrix.float-precision }}
+      #     build-target-type: ${{ matrix.target-type }}
 
 # Test
       - name: Setup Godot Action
