@@ -66,8 +66,8 @@ jobs:
       - name: Test
         if: ${{ matrix.float-precision == 'single' && matrix.target-type == 'template_debug' && (matrix.platform == 'linux' || matrix.platform == 'macos' || (matrix.platform == 'windows' && matrix.arch == 'x86_64')) }}
         run: |
-          chcp 65001 >$null
-          [console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          $env:LANG = "en_US.UTF-8"
+          $env:LC_ALL = "en_US.UTF-8"
           make test -j
 
 # Sign
