@@ -1,7 +1,7 @@
 .PHONY: test
 
 test: bin/s7 demo/.godot
-	@echo 🧪 Running tests
+	@echo "🧪 Running tests"
 	bin/s7 test/test-main.scm
 
 bin/s7: s7/s7.c
