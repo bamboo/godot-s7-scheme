@@ -65,7 +65,9 @@ jobs:
           Add-Content -Path $PROFILE -Value $content -Encoding UTF8
       - name: Test
         if: ${{ matrix.float-precision == 'single' && matrix.target-type == 'template_debug' && (matrix.platform == 'linux' || matrix.platform == 'macos' || (matrix.platform == 'windows' && matrix.arch == 'x86_64')) }}
-        run: make test -j
+        run: |
+          chcp 65001 >$null
+          make test -j
 
 # Sign
       - name: Mac Sign
